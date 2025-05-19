@@ -834,7 +834,7 @@ export async function getNowPlayingMovies() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/movie/now_playing?language=tr-TR&region=tr`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -854,7 +854,7 @@ export async function getPopularMovies() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/movie/popular?language=tr-TR&region=tr`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -874,7 +874,7 @@ export async function getUpcomingMovies() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/movie/upcoming?language=tr-TR&region=tr`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -894,7 +894,7 @@ export async function getTopRatedMovies() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/movie/top_rated?language=tr-TR&region=tr`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -914,7 +914,7 @@ export async function getAiringTodayTVShows() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/tv/airing_today?language=tr-TR`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -934,7 +934,7 @@ export async function getOnTheAirTVShows() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/tv/on_the_air?language=tr-TR`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -954,7 +954,7 @@ export async function getPopularTVShows() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/tv/popular?language=tr-TR`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -974,7 +974,7 @@ export async function getTopRatedTVShows() {
 
   const response = await fetch(
     `${TMDB_BASE_URL}/tv/top_rated?language=tr-TR`,
-    { 
+    {
       next: { revalidate: 3600 },
       headers: {
         'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -1063,11 +1063,11 @@ export async function getMovieCertifications(): Promise<{ certifications: { [key
 
 export async function discoverMovies(filters: DiscoverFilters = {}) {
   const queryParams = new URLSearchParams();
-  
+
   queryParams.append('language', 'tr-TR');
   queryParams.append('region', 'tr');
   queryParams.append('include_adult', 'false');
-  
+
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== '') {
 
@@ -1080,16 +1080,17 @@ export async function discoverMovies(filters: DiscoverFilters = {}) {
   });
 
   if (filters.year) {
+    queryParams.delete("year")
     if (filters.media_type === 'movie') {
-      queryParams.append('primary_release_year', filters.year.toString());
+      queryParams.append('primary_release_date.gte', `${filters.year}-01-01`);
     } else if (filters.media_type === 'tv') {
-      queryParams.append('first_air_date_year', filters.year.toString());
+      queryParams.append('first_air_date.gte', `${filters.year}-01-01`);
     }
   }
 
   const mediaType = filters.media_type || 'movie';
   const url = `${TMDB_BASE_URL}/discover/${mediaType}?${queryParams.toString()}`;
-  
+  console.log(url);
   const response = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${TMDB_API_KEY}`,
@@ -1166,5 +1167,5 @@ export async function searchPerson(query: string, page: number = 1): Promise<Per
     console.error("Error fetching person search results:", error);
     throw new Error("Failed to fetch person search results");
   }
-} 
+}
 
