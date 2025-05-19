@@ -1,0 +1,1 @@
+export declare function verifyToken(token: string): Promise<string | null>; 
