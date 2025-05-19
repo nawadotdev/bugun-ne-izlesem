@@ -111,10 +111,8 @@ export async function GET(req: NextRequest) {
       favorites.map(async (favorite) => {
         let details = null;
         try {
-
-          const contentType = favorite.type === 'Scripted' ? 'tv' : favorite.type;
           
-          switch (contentType) {
+          switch (favorite.type) {
             case 'movie':
               details = await getMovieDetails(favorite.itemId.toString());
               break;
@@ -131,9 +129,9 @@ export async function GET(req: NextRequest) {
 
         return {
           _id: favorite._id,
-          type: favorite.type === 'scripted' ? 'tv' : favorite.type,
           itemId: favorite.itemId,
-          ...details
+          ...details,
+          type: favorite.type,
         };
       })
     );

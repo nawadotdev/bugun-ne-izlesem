@@ -5,7 +5,7 @@ import { useUser } from '@/context/UserContext';
 import { BookmarkPlus, BookmarkCheck } from 'lucide-react';
 
 interface WatchlistButtonProps {
-  type: 'movie' | 'tv' | 'Scripted';
+  type: 'movie' | 'tv'
   itemId: number;
   size?: number;
 }

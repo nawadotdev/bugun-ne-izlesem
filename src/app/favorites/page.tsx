@@ -8,7 +8,7 @@ import { Star, Film, Tv, Users, Calendar, MapPin, Cake, User } from 'lucide-reac
 
 interface Favorite {
   _id: string;
-  type: 'movie' | 'tv' | 'person' | 'Scripted';
+  type: 'movie' | 'tv' | 'person'
   itemId: number;
   title?: string;
   name?: string;
@@ -51,6 +51,7 @@ export default function FavoritesPage() {
       }
 
       const data = await response.json();
+      console.log('Fetched favorites:', data);
       setFavorites(data);
     } catch (error) {
       console.error('Error fetching favorites:', error);
@@ -81,7 +82,7 @@ export default function FavoritesPage() {
   }
 
   const movies = favorites.filter(fav => fav.type === 'movie');
-  const tvShows = favorites.filter(fav => fav.type === 'tv' || fav.type === 'Scripted');
+  const tvShows = favorites.filter(fav => fav.type === 'tv');
   const people = favorites.filter(fav => fav.type === 'person');
 
   const filteredFavorites = activeTab === 'all' 

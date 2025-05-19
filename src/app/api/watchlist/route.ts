@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    if (!['movie', 'tv', 'Scripted'].includes(type)) {
+    if (!['movie', 'tv'].includes(type)) {
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
     }
 
@@ -107,9 +107,8 @@ export async function GET(req: NextRequest) {
       watchlist.map(async (item) => {
         let details = null;
         try {
-          const contentType = item.type === 'Scripted' ? 'tv' : item.type;
           
-          switch (contentType) {
+          switch (item.type) {
             case 'movie':
               details = await getMovieDetails(item.itemId.toString());
               break;
@@ -123,7 +122,7 @@ export async function GET(req: NextRequest) {
 
         return {
           _id: item._id,
-          type: item.type === 'Scripted' ? 'tv' : item.type,
+          type: item.type,
           itemId: item.itemId,
           ...details
         };

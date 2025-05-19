@@ -8,7 +8,7 @@ const watchlistSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['movie', 'tv', 'Scripted'],
+    enum: ['movie', 'tv'],
   },
   itemId: {
     type: Number,

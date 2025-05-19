@@ -8,7 +8,7 @@ import { Star, Film, Tv, Calendar } from 'lucide-react';
 
 interface WatchlistItem {
   _id: string;
-  type: 'movie' | 'tv' | 'Scripted';
+  type: 'movie' | 'tv'
   itemId: number;
   title?: string;
   name?: string;
@@ -74,7 +74,7 @@ export default function WatchlistPage() {
   }
 
   const movies = watchlist.filter(item => item.type === 'movie');
-  const tvShows = watchlist.filter(item => item.type === 'tv' || item.type === 'Scripted');
+  const tvShows = watchlist.filter(item => item.type === 'tv');
 
   const filteredWatchlist = activeTab === 'all' 
     ? watchlist 
@@ -128,7 +128,7 @@ export default function WatchlistPage() {
           {filteredWatchlist.map((item) => (
             <Link
               key={item._id}
-              href={`/${item.type === 'Scripted' ? 'tv' : item.type}/${item.itemId}`}
+              href={`/${item.type}/${item.itemId}`}
               className="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="relative aspect-[2/3]">
