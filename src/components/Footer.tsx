@@ -28,12 +28,6 @@ export default function Footer() {
             >
               <Github className="h-5 w-5" />
             </a>
-            <a
-              href="mailto:sudeataman@gmail.com"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 transition-colors"
-            >
-              <Mail className="h-5 w-5" />
-            </a>
           </div>
 
           {/* Telif Hakkı ve Proje Bilgisi */}
