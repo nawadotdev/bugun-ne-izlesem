@@ -81,12 +81,12 @@ export default async function TVShowPage({ params }: { params: { id: string } })
                 <div className="flex gap-4">
                   {watchProviders.flatrate.map((provider) => (
                     <div
-                      key={provider.provider_id}
+                      key={provider.id}
                       className="relative w-8 h-8"
                     >
                       <Image
                         src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
-                        alt={provider.provider_name}
+                        alt={provider.name}
                         fill
                         className="object-contain"
                       />
