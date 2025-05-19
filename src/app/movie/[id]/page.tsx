@@ -7,7 +7,7 @@ import FavoriteButton from '@/components/FavoriteButton';
 import WatchlistButton from '@/components/WatchlistButton';
 
 export default async function MoviePage({ params }: { params: { id: string } }) {
-  const { id } = await params
+  const { id } = params;
   const [movie, credits, watchProviders] = await Promise.all([
     getMovieDetails(id),
     getMovieCredits(id),
