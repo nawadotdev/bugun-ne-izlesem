@@ -5,7 +5,12 @@ import { getPersonDetails, getPersonCombinedCredits, getPersonExternalIds } from
 import type { Person, CombinedCredit, ExternalIds } from "@/actions/tmdbApi";
 import FavoriteButton from '@/components/FavoriteButton';
 
-export default async function PersonPage({ params }: { params: { id: string } }) {
+type Params = Promise<{
+  id: string;
+}>;
+
+export default async function PersonPage(props: { params: Params }) {
+  const params = await props.params;
   const { id } = params;
   
   const [person, credits, externalIds] = await Promise.all([

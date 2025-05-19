@@ -6,7 +6,12 @@ import type { Movie, Credits, WatchProviders } from "@/actions/tmdbApi";
 import FavoriteButton from '@/components/FavoriteButton';
 import WatchlistButton from '@/components/WatchlistButton';
 
-export default async function MoviePage({ params }: { params: { id: string } }) {
+type Params = Promise<{
+  id: string;
+}>;
+
+export default async function MoviePage(props: { params: Params }) {
+  const params = await props.params;
   const { id } = params;
   const [movie, credits, watchProviders] = await Promise.all([
     getMovieDetails(id),
