@@ -103,7 +103,6 @@ export async function GET(req: NextRequest) {
 
     const watchlist = await Watchlist.find(query);
 
-    // İzleme listesi öğelerinin detaylarını TMDB API'den al
     const watchlistWithDetails = await Promise.all(
       watchlist.map(async (item) => {
         let details = null;

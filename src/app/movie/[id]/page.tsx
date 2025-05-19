@@ -25,7 +25,7 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
     );
   }
 
-  // Yönetmeni bul
+
   const director = credits.crew.find(person => person.job === "Director");
 
   return (

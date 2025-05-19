@@ -41,7 +41,6 @@ export async function POST(request: Request) {
       { expiresIn: "7d" }
     );
 
-    // Kullanıcı bilgilerini döndür (şifre hariç)
     const userData = {
       id: user._id,
       name: user.name,

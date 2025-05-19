@@ -3,6 +3,21 @@
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000;
+
+function getCachedData(key: string) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedData(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 export interface Movie {
   id: number;
   title: string;
@@ -177,10 +192,15 @@ export interface TVShow {
 }
 
 export interface WatchProvider {
+  id: number;
+  name: string;
   logo_path: string;
-  provider_id: number;
-  provider_name: string;
-  display_priority: number;
+}
+
+export interface Certification {
+  certification: string;
+  meaning: string;
+  order: number;
 }
 
 export interface WatchProviders {
@@ -319,6 +339,92 @@ export interface SearchResponse {
   total_results: number;
 }
 
+export interface TrendingResult {
+  adult?: boolean;
+  backdrop_path?: string | null;
+  id: number;
+  title?: string;
+  name?: string;
+  original_language?: string;
+  original_title?: string;
+  original_name?: string;
+  overview?: string;
+  poster_path?: string | null;
+  media_type: string;
+  genre_ids?: number[];
+  popularity?: number;
+  release_date?: string;
+  first_air_date?: string;
+  video?: boolean;
+  vote_average?: number;
+  vote_count?: number;
+  profile_path?: string | null;
+}
+
+export interface TrendingResponse {
+  page: number;
+  results: TrendingResult[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface Genre {
+  id: number;
+  name: string;
+}
+
+export async function getMovieGenres(): Promise<{ genres: Genre[] }> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/genre/movie/list?language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 3600
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch movie genres");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching movie genres:", error);
+    throw new Error("Failed to fetch movie genres");
+  }
+}
+
+export async function getTVGenres(): Promise<{ genres: Genre[] }> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/genre/tv/list?language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 3600
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch TV genres");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching TV genres:", error);
+    throw new Error("Failed to fetch TV genres");
+  }
+}
+
 export async function getMovieDetails(id: string): Promise<Movie> {
   try {
     const response = await fetch(
@@ -329,7 +435,7 @@ export async function getMovieDetails(id: string): Promise<Movie> {
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -355,7 +461,7 @@ export async function getMovieCredits(id: string): Promise<Credits> {
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -381,7 +487,7 @@ export async function getPersonDetails(id: string): Promise<Person> {
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -407,7 +513,7 @@ export async function getTVShowDetails(id: string): Promise<TVShow> {
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -433,7 +539,7 @@ export async function getTVShowCredits(id: string): Promise<Credits> {
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -459,7 +565,7 @@ export async function getMovieWatchProviders(id: string): Promise<WatchProviders
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -486,7 +592,7 @@ export async function getTVShowWatchProviders(id: string): Promise<WatchProvider
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -513,7 +619,7 @@ export async function getPersonMovieCredits(id: string): Promise<PersonCredits> 
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -539,7 +645,7 @@ export async function getPersonTVCredits(id: string): Promise<PersonTVCredits> {
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -565,7 +671,7 @@ export async function getPersonCombinedCredits(id: string): Promise<CombinedCred
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -609,7 +715,7 @@ export async function searchMulti(query: string, page: number = 1): Promise<Sear
           "accept": "application/json"
         },
         next: {
-          revalidate: 3600 // 1 saat cache
+          revalidate: 3600
         }
       }
     );
@@ -622,6 +728,443 @@ export async function searchMulti(query: string, page: number = 1): Promise<Sear
   } catch (error) {
     console.error("Error fetching search results:", error);
     throw new Error("Failed to fetch search results");
+  }
+}
+
+export async function getTrendingAll(timeWindow: 'day' | 'week' = 'day', page: number = 1): Promise<TrendingResponse> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/trending/all/${timeWindow}?page=${page}&language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 1800
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch trending all");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching trending all:", error);
+    throw new Error("Failed to fetch trending all");
+  }
+}
+
+export async function getTrendingMovies(timeWindow: 'day' | 'week' = 'day', page: number = 1): Promise<TrendingResponse> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/trending/movie/${timeWindow}?page=${page}&language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 1800
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch trending movies");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching trending movies:", error);
+    throw new Error("Failed to fetch trending movies");
+  }
+}
+
+export async function getTrendingTV(timeWindow: 'day' | 'week' = 'day', page: number = 1): Promise<TrendingResponse> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/trending/tv/${timeWindow}?page=${page}&language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 1800
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch trending TV shows");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching trending TV shows:", error);
+    throw new Error("Failed to fetch trending TV shows");
+  }
+}
+
+export async function getTrendingPersons(timeWindow: 'day' | 'week' = 'day', page: number = 1): Promise<TrendingResponse> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/trending/person/${timeWindow}?page=${page}&language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 1800
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch trending persons");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching trending persons:", error);
+    throw new Error("Failed to fetch trending persons");
+  }
+}
+
+export async function getNowPlayingMovies() {
+  const cacheKey = 'now_playing_movies';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/movie/now_playing?language=tr-TR&region=tr`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getPopularMovies() {
+  const cacheKey = 'popular_movies';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/movie/popular?language=tr-TR&region=tr`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getUpcomingMovies() {
+  const cacheKey = 'upcoming_movies';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/movie/upcoming?language=tr-TR&region=tr`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getTopRatedMovies() {
+  const cacheKey = 'top_rated_movies';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/movie/top_rated?language=tr-TR&region=tr`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getAiringTodayTVShows() {
+  const cacheKey = 'airing_today_tv';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/tv/airing_today?language=tr-TR`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getOnTheAirTVShows() {
+  const cacheKey = 'on_the_air_tv';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/tv/on_the_air?language=tr-TR`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getPopularTVShows() {
+  const cacheKey = 'popular_tv';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/tv/popular?language=tr-TR`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export async function getTopRatedTVShows() {
+  const cacheKey = 'top_rated_tv';
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) return cachedData;
+
+  const response = await fetch(
+    `${TMDB_BASE_URL}/tv/top_rated?language=tr-TR`,
+    { 
+      next: { revalidate: 3600 },
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  setCachedData(cacheKey, data);
+  return data;
+}
+
+export interface DiscoverFilters {
+  media_type?: 'movie' | 'tv';
+  sort_by?: string;
+  with_genres?: string;
+  with_original_language?: string;
+  with_runtime_gte?: number;
+  with_runtime_lte?: number;
+  'vote_average.gte'?: number;
+  vote_count_gte?: number;
+  year?: number;
+  with_cast?: string;
+  page?: number;
+  with_status?: string;
+  with_type?: string;
+  primary_release_year?: number;
+  first_air_date_year?: number;
+  release_date_gte?: string;
+  release_date_lte?: string;
+  air_date_gte?: string;
+  air_date_lte?: string;
+}
+
+export async function getWatchProviders(mediaType: 'movie' | 'tv'): Promise<{ results: WatchProvider[] }> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/watch/providers/${mediaType}?language=tr-TR&watch_region=TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 3600
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${mediaType} watch providers`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching ${mediaType} watch providers:`, error);
+    throw new Error(`Failed to fetch ${mediaType} watch providers`);
+  }
+}
+
+export async function getMovieCertifications(): Promise<{ certifications: { [key: string]: Certification[] } }> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/certification/movie/list`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 3600
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch movie certifications");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching movie certifications:", error);
+    throw new Error("Failed to fetch movie certifications");
+  }
+}
+
+export async function discoverMovies(filters: DiscoverFilters = {}) {
+  const queryParams = new URLSearchParams();
+  
+  queryParams.append('language', 'tr-TR');
+  queryParams.append('region', 'tr');
+  queryParams.append('include_adult', 'false');
+  
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') {
+
+      if (typeof value === 'boolean') {
+        queryParams.append(key, value.toString());
+      } else {
+        queryParams.append(key, value.toString());
+      }
+    }
+  });
+
+  if (filters.year) {
+    if (filters.media_type === 'movie') {
+      queryParams.append('primary_release_year', filters.year.toString());
+    } else if (filters.media_type === 'tv') {
+      queryParams.append('first_air_date_year', filters.year.toString());
+    }
+  }
+
+  const mediaType = filters.media_type || 'movie';
+  const url = `${TMDB_BASE_URL}/discover/${mediaType}?${queryParams.toString()}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${TMDB_API_KEY}`,
+      'accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch discover ${mediaType}`);
+  }
+
+  return response.json();
+}
+
+export interface PersonSearchResult {
+  adult: boolean;
+  gender: number;
+  id: number;
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  popularity: number;
+  profile_path: string | null;
+  known_for: Array<{
+    adult: boolean;
+    backdrop_path: string | null;
+    id: number;
+    title?: string;
+    name?: string;
+    original_language: string;
+    original_title?: string;
+    original_name?: string;
+    overview: string;
+    poster_path: string | null;
+    media_type: string;
+    genre_ids: number[];
+    popularity: number;
+    release_date?: string;
+    first_air_date?: string;
+    video?: boolean;
+    vote_average: number;
+    vote_count: number;
+  }>;
+}
+
+export interface PersonSearchResponse {
+  page: number;
+  results: PersonSearchResult[];
+  total_pages: number;
+  total_results: number;
+}
+
+export async function searchPerson(query: string, page: number = 1): Promise<PersonSearchResponse> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/search/person?query=${encodeURIComponent(query)}&page=${page}&language=tr-TR`,
+      {
+        headers: {
+          "Authorization": `Bearer ${TMDB_API_KEY}`,
+          "accept": "application/json"
+        },
+        next: {
+          revalidate: 3600
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch person search results");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching person search results:", error);
+    throw new Error("Failed to fetch person search results");
   }
 } 
 

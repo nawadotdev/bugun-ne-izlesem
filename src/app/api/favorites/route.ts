@@ -6,7 +6,7 @@ import { getMovieDetails, getTVShowDetails, getPersonDetails } from '@/actions/t
 
 export async function POST(req: NextRequest) {
   try {
-    // Token kontrolü
+
     const token = req.headers.get('authorization')?.split(' ')[1];
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    // Token kontrolü
+
     const token = req.headers.get('authorization')?.split(' ')[1];
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -83,7 +83,7 @@ export async function DELETE(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    // Token kontrolü
+
     const token = req.headers.get('authorization')?.split(' ')[1];
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -106,12 +106,12 @@ export async function GET(req: NextRequest) {
 
     const favorites = await Favorite.find(query);
 
-    // Favori öğelerin detaylarını TMDB API'den al
+
     const favoritesWithDetails = await Promise.all(
       favorites.map(async (favorite) => {
         let details = null;
         try {
-          // scripted tipini tv olarak işle
+
           const contentType = favorite.type === 'Scripted' ? 'tv' : favorite.type;
           
           switch (contentType) {

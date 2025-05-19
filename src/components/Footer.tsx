@@ -34,14 +34,6 @@ export default function Footer() {
             >
               <Mail className="h-5 w-5" />
             </a>
-            <a
-              href="https://linkedin.com/in/sudeataman"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 transition-colors"
-            >
-              <Linkedin className="h-5 w-5" />
-            </a>
           </div>
 
           {/* Telif Hakkı ve Proje Bilgisi */}
