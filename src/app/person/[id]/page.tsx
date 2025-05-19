@@ -6,7 +6,7 @@ import type { Person, CombinedCredit, ExternalIds } from "@/actions/tmdbApi";
 import FavoriteButton from '@/components/FavoriteButton';
 
 export default async function PersonPage({ params }: { params: { id: string } }) {
-  const { id } = await params;
+  const { id } = params;
   
   const [person, credits, externalIds] = await Promise.all([
     getPersonDetails(id),
