@@ -390,7 +390,7 @@ export default function DiscoverPage() {
                 </>
               ))}
 
-              {renderFilterSection('Tür ve Oyuncu', <Tag className="w-5 h-5" />, (
+              {renderFilterSection('Tür ve Dil', <Tag className="w-5 h-5" />, (
                 <>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -410,78 +410,6 @@ export default function DiscoverPage() {
                     </select>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Oyuncu Ara (En az birini içeren)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white"
-                        placeholder="Oyuncu adı yazın..."
-                      />
-                      {searchResults.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                          {searchResults.map((actor) => (
-                            <button
-                              key={actor.id}
-                              onClick={() => handleActorSelect(actor)}
-                              className="w-full px-4 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-3"
-                            >
-                              {actor.profile_path ? (
-                                <Image
-                                  src={`https://image.tmdb.org/t/p/w92${actor.profile_path}`}
-                                  alt={actor.name}
-                                  width={32}
-                                  height={32}
-                                  className="rounded-full"
-                                />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                  <Users className="w-4 h-4 text-slate-500" />
-                                </div>
-                              )}
-                              <span className="text-slate-900 dark:text-white">{actor.name}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {selectedActors.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {selectedActors.map((actor) => (
-                          <div
-                            key={actor.id}
-                            className="flex items-center gap-2 bg-slate-100 dark:bg-slate-700 rounded-full px-3 py-1"
-                          >
-                            {actor.profile_path ? (
-                              <Image
-                                src={`https://image.tmdb.org/t/p/w92${actor.profile_path}`}
-                                alt={actor.name}
-                                width={24}
-                                height={24}
-                                className="rounded-full"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center">
-                                <Users className="w-3 h-3 text-slate-500" />
-                              </div>
-                            )}
-                            <span className="text-sm text-slate-900 dark:text-white">{actor.name}</span>
-                            <button
-                              onClick={() => handleActorRemove(actor.id)}
-                              className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
